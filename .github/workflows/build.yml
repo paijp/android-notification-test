@@ -32,8 +32,18 @@ jobs:
       - name: Build debug APK
         run: gradle assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Commit APK to release/
+        run: |
+          mkdir -p release
+          cp app/build/outputs/apk/debug/app-debug.apk release/app-debug.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add release/app-debug.apk
+          git diff --cached --quiet || git commit -m "ci: update release/app-debug.apk [skip ci]"
+          git push
